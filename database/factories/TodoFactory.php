@@ -2,24 +2,18 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Todo>
- */
 class TodoFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'user_id' => rand(1, 100),
-            'title' => fake()->sentence(),
-            'is_done' => rand(1, 100),
+            'user_id' => User::factory(), // atau assign manual pas create
+            'title' => $this->faker->sentence(),
+            'is_done' => $this->faker->boolean(40), // 40% selesai
         ];
     }
 }
+
