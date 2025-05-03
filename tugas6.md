@@ -1,4 +1,4 @@
-# Tugas 5
+# Tugas 6
 
 ## 1. Todo Create
 ![Alt text](screenshot/tugas6/image.png)
