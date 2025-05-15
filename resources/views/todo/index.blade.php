@@ -31,7 +31,8 @@
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" class="px-6 py-3">Title</th>
-                            <th scope="col" class="px-6 py-3 md:block">Status</th>
+                            <th scope="col" class="px-6 py-3">Category</th>
+                            <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Action</th>
                         </tr>
                     </thead>
@@ -41,25 +42,36 @@
                                 <td scope="row" class="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                     <a href="{{ route('todo.edit', $data) }}" class="hover:underline">{{ $data->title }}</a>
                                 </td>
-                                <td class="hidden px-6 py-4 md:block">
+                                <td class="px-6 py-4">
+                                    @if ($data->category)
+                                        {{ $data->category->title }}
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
                                     @if (!$data->is_done)
-                                        <span class="inline-flex bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                        <span class="inline-flex items-center gap-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-900 text-xs font-semibold px-3 py-1 rounded-full dark:from-blue-800 dark:to-blue-900 dark:text-blue-200 shadow-sm">
+                                            <svg class="w-3.5 h-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                            </svg>
                                             Ongoing
                                         </span>
                                     @else
-                                        <span class="inline-flex bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                        <span class="inline-flex items-center gap-1 bg-green-100 text-green-900 text-xs font-semibold px-3 py-1 rounded-full dark:bg-green-800 dark:text-green-200 shadow-sm">
+                                            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L9 14.414l-3.707-3.707a1 1 0 111.414-1.414L9 11.586l6.293-6.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
                                             Done
                                         </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex space-x-6">
-                                        {{-- Action Here --}}
                                         @if ($data->is_done == false)
                                             <form action="{{ route('todo.complete', $data) }}" method="Post">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="text-green-600 dark:text-green-400">
+                                                <button type="submit" class="text-green-600 dark:text-green-400 hover:underline">
                                                     Complete
                                                 </button>
                                             </form>
@@ -67,7 +79,7 @@
                                             <form action="{{ route('todo.uncomplete', $data) }}" method="Post">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="text-blue-600 dark:text-blue-400">
+                                                <button type="submit" class="text-blue-600 dark:text-blue-400 hover:underline">
                                                     Uncomplete
                                                 </button>
                                             </form>
@@ -84,7 +96,7 @@
                             </tr>
                         @empty
                             <tr class="odd:bg-white dark:bg-gray-900 even:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                     No data available
                                 </td>
                             </tr>

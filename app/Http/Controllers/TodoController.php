@@ -4,33 +4,38 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Todo;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 class TodoController extends Controller
 {
     public function index()
     {
         // $todos = Todo::all();
-         $todos = Todo::where('user_id', auth()->user()->id)
-         ->orderBy('is_done', 'asc')
-         ->orderBy('created_at', 'desc')
-         ->get();
+        $todos = Todo::where('user_id', Auth::user()->id)
+        ->orderBy('is_done', 'asc')
+        ->orderBy('created_at', 'desc')
+        ->get();
          // dd($todos);
-         $todosCompleted = Todo::where('user_id', auth()->user()->id)
+        $todosCompleted = Todo::where('user_id', Auth::user()->id)
             ->where('is_done', true)
             ->count();
-         return view('todo.index', compact('todos', 'todosCompleted'));
+        return view('todo.index', compact('todos', 'todosCompleted'));
     }
 
     public function create()
     {
-        return view('todo.create');
+        $categories = Category::all();
+        return view('todo.create', compact('categories'));
     }
 
     public function edit(Todo $todo)
     {
-        if (auth()->user()->id == $todo->user_id) {
+        $categories = Category::where('user_id', Auth::user()->id)->get();
+        
+        if (Auth::user()->id == $todo->user_id) {
             // dd($todo);
-            return view('todo.edit', compact('todo'));
+            $categories = Category::all();
+            return view('todo.edit', compact('todo', 'categories'));
         } else {
             // abort(403);
             // abort(403, 'Not authorized');
@@ -51,6 +56,7 @@ class TodoController extends Controller
         // Eloquent Way - Readable
         $todo->update([
             'title' => ucfirst($request->title),
+            'category_id' => $request->category_id
         ]);
 
         return redirect()->route('todo.index')->with('success', 'Todo updated successfully!');
@@ -59,7 +65,7 @@ class TodoController extends Controller
 
     public function complete(Todo $todo)
     {
-        if(auth()->user()->id == $todo->user_id){
+        if(Auth::user()->id == $todo->user_id){
             $todo->update([
                 'is_done' => true,
             ]);
@@ -71,7 +77,7 @@ class TodoController extends Controller
 
     public function uncomplete(Todo $todo)
     {
-        if(auth()->user()->id == $todo->user_id){
+        if(Auth::user()->id == $todo->user_id){
             $todo->update([
                 'is_done' => false,
             ]);
@@ -85,18 +91,19 @@ class TodoController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
-           
+        
         ]);
         $todo = Todo::create([
             'title' => ucfirst($request->title),
             'user_id' => Auth::id(),
+            'category_id' => $request->category_id
         ]);
         return redirect()->route('todo.index')->with('success', 'Todo created successfully.');
     }
 
     public function destroy(Todo $todo)
     {
-        if (auth()->user()->id == $todo->user_id) {
+        if (Auth::user()->id == $todo->user_id) {
             $todo->delete();
             return redirect()->route('todo.index')->with('success', 'Todo deleted successfully!');
         } else {
@@ -106,8 +113,7 @@ class TodoController extends Controller
 
     public function destroyCompleted()
     {
-        // get all todos for current user where is_done is true
-        $todosCompleted = Todo::where('user_id', auth()->user()->id)
+        $todosCompleted = Todo::where('user_id', Auth::user()->id)
             ->where('is_done', true)
             ->get();
 
