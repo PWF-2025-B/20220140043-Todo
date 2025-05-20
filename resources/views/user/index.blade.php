@@ -17,7 +17,7 @@
                             </h2>
                         @endif
 
-                        <form class="flex items-center gap-2">
+                        <form class="flex items-center gap-2" method="GET">
                             <x-text-input id="search" name="search" type="text" 
                                 placeholder="Search by name or email ..." value="{{ request('search') }}" autofocus />
                             <x-primary-button type="submit">
@@ -70,13 +70,13 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <p>
-                                            {{ $data->todos->count() }}
+                                            {{ $data->todos_count }}
                                             <span>
                                                 <span class="text-green-600 dark:text-green-400">
-                                                    ({{ $data->todos->where('is_done', true)->count() }}
+                                                    ({{ $data->todos_done_count }}
                                                 </span> /
                                                 <span class="text-blue-600 dark:text-blue-400">
-                                                    {{ $data->todos->where('is_done', false)->count() }})
+                                                    {{ $data->todos_undone_count }})
                                                 </span>
                                             </span>
                                         </p>
@@ -84,7 +84,7 @@
                                     <td class="px-6 py-4">
                                         <div class="flex space-x-3">
                                             @if ($data->is_admin)
-                                                <form action="{{ route('user.removeadmin', $data) }}" method="Post">
+                                                <form action="{{ route('user.removeadmin', $data) }}" method="POST">
                                                     @csrf
                                                     @method('PATCH')
                                                     <button type="submit"
@@ -93,7 +93,7 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <form action="{{ route('user.makeadmin', $data) }}" method="Post">
+                                                <form action="{{ route('user.makeadmin', $data) }}" method="POST">
                                                     @csrf
                                                     @method('PATCH')
                                                     <button type="submit"
@@ -102,9 +102,9 @@
                                                     </button>
                                                 </form>
                                             @endif
-                                            <form action="{{ route('user.destroy', $data) }}" method="Post">
+                                            <form action="{{ route('user.destroy', $data) }}" method="POST" onsubmit="return confirm('Yakin mau delete?')">
                                                 @csrf
-                                                @method('delete')
+                                                @method('DELETE')
                                                 <button type="submit"
                                                         class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded">
                                                     Delete

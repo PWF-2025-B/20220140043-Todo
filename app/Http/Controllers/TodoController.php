@@ -10,16 +10,36 @@ class TodoController extends Controller
 {
     public function index()
     {
-        // $todos = Todo::all();
-        $todos = Todo::where('user_id', Auth::user()->id)
-        ->orderBy('is_done', 'asc')
-        ->orderBy('created_at', 'desc')
-        ->get();
-         // dd($todos);
-        $todosCompleted = Todo::where('user_id', Auth::user()->id)
-            ->where('is_done', true)
-            ->count();
-        return view('todo.index', compact('todos', 'todosCompleted'));
+    // $todos = Todo::all();
+    // $todos = Todo::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+    // dd($todos);
+    // $todos = Todo::where('user_id', Auth::id())
+    //     ->orderBy('is_done', 'asc')
+    //     ->orderBy('created_at', 'desc')
+    //     ->paginate(10);
+        // Ambil semua todo dari user login dengan eager load relasi 'category'
+                $todosQuery = Todo::with('category')
+            ->where('user_id', Auth::id())
+            ->orderBy('is_done', 'asc')
+            ->orderBy('created_at', 'desc');
+
+        $allTodos = $todosQuery->get(); // ← INI cuma 1 query karena pakai with
+
+        // Hitung dari collection
+        $todoCompleted = $allTodos->where('is_done', true)->count();
+
+        // Manual paginate collection, biar nggak query ulang
+        $page = request('page', 1);
+        $perPage = 10;
+        $todos = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allTodos->forPage($page, $perPage),
+            $allTodos->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('todo.index', compact('todos', 'todoCompleted'));
     }
 
     public function create()

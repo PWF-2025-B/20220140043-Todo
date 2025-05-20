@@ -7,6 +7,7 @@ use App\Models\Todo;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Category;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,16 +22,19 @@ class DatabaseSeeder extends Seeder
         // Membuat admin dengan password yang di-hash
         User::factory()->create([
             'name' => 'Admin',
-            'email' => 'admin@example.com',
+            'email' => 'admin@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-            'is_admin' => true
+            'is_admin' => true,
         ]);
-
-        // Membuat 100 user tambahan secara otomatis
-        User::factory(100)->create();
-        // Membuat 100 todo secara otomatis
-        Todo::factory(100)->create();
+        User::factory()->create([
+            'name' => 'Muhamad Adri Muwaffaq Khamid', // Ganti dengan nama lengkap kamu
+            'email' => 'adri.example@mail.com', // Ganti dengan email kamu
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false,
+        ]);     // Membuat 100 todo secara otomati    
     }
 }

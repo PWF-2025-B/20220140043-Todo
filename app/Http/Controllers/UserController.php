@@ -7,57 +7,44 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // $users = User::where('id', '!=', 1)->orderBy('name')->paginate(10);
-        // return view('user.index', compact('users'));
+        $search = $request->input('search');
 
-        $search = request('search');
+                $usersQuery = User::withCount([
+            'todos as todos_done_count' => fn($query) => $query->where('is_done', true),
+            'todos as todos_undone_count' => fn($query) => $query->where('is_done', false)
+        ])
+        ->where('id', '!=', 1);
+
         if ($search) {
-            $users = User::where(function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
-                })
-                ->orderBy('name')
-                ->where('id', '!=', 1)
-                ->paginate(20)
-                ->withQueryString();
-        } else {
-            $users = User::where('id', '!=', 1)
-                ->orderBy('name')
-                ->paginate(20);
+            $usersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
         }
+
+        $users = $usersQuery->paginate(10)->withQueryString();
+
         return view('user.index', compact('users'));
     }
 
-    public function makeadmin(User $user)
+    // Contoh route untuk make admin / remove admin (asumsi ada kolom is_admin)
+    public function makeAdmin(User $user)
     {
-        $user->timestamps = false;
-        $user->is_admin = true;
-        $user->save();
-        return back()->with('success', 'Make admin successfully!');
+        $user->update(['is_admin' => true]);
+        return redirect()->route('user.index')->with('success', 'User is now Admin');
     }
 
-    public function removeadmin(User $user)
+    public function removeAdmin(User $user)
     {
-        if ($user->id != 1) {
-            $user->timestamps = false;
-            $user->is_admin = false;
-            $user->save();
-            return back()->with('success', 'Remove admin successfully!');
-        } else {
-            return redirect()->route('user.index');
-        }
+        $user->update(['is_admin' => false]);
+        return redirect()->route('user.index')->with('success', 'Admin rights removed');
     }
 
     public function destroy(User $user)
     {
-        if ($user->id != 1) {
-            $user->delete();
-            return back()->with('success', 'Delete user successfully!');
-        } else {
-            return redirect()->route('user.index')->with('danger', 'Delete user failed!');
-        }
+        $user->delete();
+        return redirect()->route('user.index')->with('danger', 'User deleted');
     }
-
 }

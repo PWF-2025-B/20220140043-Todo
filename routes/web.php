@@ -14,11 +14,14 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Group route untuk user yang sudah login (semua role)
 Route::middleware('auth')->group(function () {
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Todo routes
     Route::get('/todo', [TodoController::class, 'index'])->name('todo.index');
     Route::get('/todo/create', [TodoController::class, 'create'])->name('todo.create');
     Route::post('/todo', [TodoController::class, 'store'])->name('todo.store');
@@ -28,11 +31,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/todo/{todo}/incomplete', [TodoController::class, 'uncomplete'])->name('todo.uncomplete');
     Route::delete('/todo/{todo}', [TodoController::class, 'destroy'])->name('todo.destroy');
     Route::delete('/todo', [TodoController::class, 'destroyCompleted'])->name('todo.deleteallcompleted');
+
+    // Category routes (CRUD kecuali show)
     Route::resource('category', CategoryController::class)->except(['show']);
+
+    // User routes untuk semua user (non-admin) cuma bisa lihat dan hapus user
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
 });
 
+// Group route khusus admin (middleware 'admin' harus lo buat)
+// Bisa akses user create, update, edit + makeadmin/removeadmin
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('user', UserController::class)->except(['show', 'index', 'destroy']);
     Route::patch('/user/{user}/makeadmin', [UserController::class, 'makeadmin'])->name('user.makeadmin');
